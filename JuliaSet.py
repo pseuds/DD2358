@@ -1,7 +1,53 @@
 """Julia set generator without optional PIL-based image drawing"""
+import numpy as np
 import time
 from functools import wraps
-import numpy as np
+from timeit import default_timer as timer
+
+def checktick_time():
+    M = 200
+    timesfound = np.empty((M,))
+    for i in range(M):
+        t1 =  time.time() # get timestamp from timer
+        t2 = time.time() # get timestamp from timer
+        while (t2 - t1) < 1e-16: # if zero then we are below clock granularity, retake timing
+            t2 = time.time() # get timestamp from timer
+        t1 = t2 # this is outside the loop
+        timesfound[i] = t1 # record the time stamp
+    minDelta = 1000000
+    Delta = np.diff(timesfound) # it should be cast to int only when needed
+    minDelta = Delta.min()
+    return minDelta
+
+def checktick_timer():
+    M = 200
+    timesfound = np.empty((M,))
+    for i in range(M):
+        t1 =  timer() # get timestamp from timer
+        t2 = timer() # get timestamp from timer
+        while (t2 - t1) < 1e-16: # if zero then we are below clock granularity, retake timing
+            t2 = timer() # get timestamp from timer
+        t1 = t2 # this is outside the loop
+        timesfound[i] = t1 # record the time stamp
+    minDelta = 1000000
+    Delta = np.diff(timesfound) # it should be cast to int only when needed
+    minDelta = Delta.min()
+    return minDelta
+
+def checktick_time_ns():
+    M = 200
+    timesfound = np.empty((M,))
+    for i in range(M):
+        t1 =  time.time_ns() # get timestamp from timer
+        t2 = time.time_ns() # get timestamp from timer
+        while (t2 - t1) < 1e-16: # if zero then we are below clock granularity, retake timing
+            t2 = time.time_ns() # get timestamp from timer
+        t1 = t2 # this is outside the loop
+        timesfound[i] = t1 # record the time stamp
+    minDelta = 1000000
+    Delta = np.diff(timesfound) # it should be cast to int only when needed
+    minDelta = Delta.min()
+    return minDelta
 
 # area of complex space to investigate
 x1, x2, y1, y2 = -1.8, 1.8, -1.8, 1.8
@@ -18,20 +64,6 @@ def timefn(fn):
         return result
     return measure_time
 
-def checktick():
-    M = 200
-    timesfound = np.empty((M,))
-    for i in range(M):
-        t1 =  ... # get timestamp from timer
-        t2 = ... # get timestamp from timer
-        while (t2 - t1) <  1e-16: # if zero then we are below clock granularity, retake timing
-            t2 = ... # get timestamp from timer
-        t1 = t2 # this is outside the loop
-        timesfound[i] = t1 # record the time stamp
-    minDelta = 1000000
-    Delta = np.diff(timesfound) # it should be cast to int only when needed
-    minDelta = Delta.min()
-    return minDelta
 
 def calc_pure_python(desired_width, max_iterations):
     """Create a list of complex coordinates (zs) and complex parameters (cs),
@@ -73,7 +105,6 @@ def calc_pure_python(desired_width, max_iterations):
 
 def calculate_z_serial_purepython(maxiter, zs, cs):
     """Calculate output list using Julia update rule"""
-    # most computationally intensive part of code
     output = [0] * len(zs)
     for i in range(len(zs)):
         n = 0
@@ -88,4 +119,12 @@ def calculate_z_serial_purepython(maxiter, zs, cs):
 if __name__ == "__main__":
     # Calculate the Julia set using a pure Python solution with
     # reasonable defaults for a laptop
-    calc_pure_python(desired_width=1000, max_iterations=300) 
+    # calc_pure_python(desired_width=10000, max_iterations=300)
+    minDeltaTime = checktick_time()
+    minDeltaTimer = checktick_timer()
+    minDeltaTimeNS = checktick_time_ns()
+    print("Task 1.1")
+    print("Clock Granularity of time.time: {}".format(minDeltaTime))
+    print("Clock Granularity of timeit: {}".format(minDeltaTimer))
+    print("Clock Granularity of time.time_ns: {}".format(minDeltaTimeNS))
+    print("\n")
