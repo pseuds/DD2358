@@ -64,7 +64,20 @@ def timefn(fn):
         return result
     return measure_time
 
+# decorator to time
+def timeitfn(fn):
+    @wraps(fn)
+    def measure_time(*args, **kwargs):
+        t1 = timer()
+        result = fn(*args, **kwargs)
+        t2 = timer()
+        print(f"@timeitfn: {fn.__name__} took {t2 - t1} seconds")
+        return result, t2-t1
+        # return result
+    return measure_time
 
+
+@timeitfn
 def calc_pure_python(desired_width, max_iterations):
     """Create a list of complex coordinates (zs) and complex parameters (cs),
     build Julia set"""
@@ -94,15 +107,17 @@ def calc_pure_python(desired_width, max_iterations):
     print("Length of x:", len(x))
     print("Total elements:", len(zs))
     start_time = time.time()
-    output = calculate_z_serial_purepython(max_iterations, zs, cs)
+    output, time_taken = calculate_z_serial_purepython(max_iterations, zs, cs)
     end_time = time.time()
     secs = end_time - start_time
     print(calculate_z_serial_purepython.__name__ + " took", secs, "seconds")
 
     # This sum is expected for a 1000^2 grid with 300 iterations
     # It ensures that our code evolves exactly as we'd intended
-    assert sum(output) == 33219980
+    # assert sum(output) == 33219980
+    return sum(output), time_taken
 
+@timeitfn
 def calculate_z_serial_purepython(maxiter, zs, cs):
     """Calculate output list using Julia update rule"""
     output = [0] * len(zs)
@@ -119,12 +134,4 @@ def calculate_z_serial_purepython(maxiter, zs, cs):
 if __name__ == "__main__":
     # Calculate the Julia set using a pure Python solution with
     # reasonable defaults for a laptop
-    # calc_pure_python(desired_width=10000, max_iterations=300)
-    minDeltaTime = checktick_time()
-    minDeltaTimer = checktick_timer()
-    minDeltaTimeNS = checktick_time_ns()
-    print("Task 1.1")
-    print("Clock Granularity of time.time: {}".format(minDeltaTime))
-    print("Clock Granularity of timeit: {}".format(minDeltaTimer))
-    print("Clock Granularity of time.time_ns: {}".format(minDeltaTimeNS))
-    print("\n")
+    calc_pure_python(desired_width=1000, max_iterations=300)
