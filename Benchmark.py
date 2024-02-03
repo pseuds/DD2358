@@ -93,3 +93,11 @@ if __name__ == "__main__":
     plot_benchmark([i[1] for i in array_total], [j[1] for j in list_total], sizes, 'Scale')
     plot_benchmark([i[2] for i in array_total], [j[2] for j in list_total], sizes, 'Sum')
     plot_benchmark([i[3] for i in array_total], [j[3] for j in list_total], sizes, 'Triad')
+
+'''
+How does the bandwidth vary when increasing the STREAM_ARRAY_SIZE, and why?
+As the array size increases, the bandwidth converges to an upper limit. This is because the available memory bandwidth is limited, to the rate at which data can be transferred between the processor and memory becomes a bottleneck.
+
+How do the different implementation bandwidths compare to each other?
+The memory bandwidth seems to be a lot more for Python Lists in all array sizes as compared to arrays.
+'''
