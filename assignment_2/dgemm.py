@@ -21,7 +21,7 @@ def run_pylist(size):
     return size, A, B, np.dot(A, B)
 
 def matrix_pyarray_init(size):
-    matrix_pyarray = array('f', [np.random.rand() for i in range(size*size)])
+    matrix_pyarray = [array('d', [0.0] * size) for _ in range(size)]
     return matrix_pyarray
 
 def run_pyarray(size):
@@ -78,8 +78,6 @@ if __name__ == "__main__":
     print("Standard Deviations: ", stds, '\n')
     print("Giga FLOPS per second: ", flops_per_second)
     print("Theoretical Peak for current processor (AMD Ryzen 7 4800H): 371,2 Giga FLOPs/s")
-    plot_times(sizes, dot_times, 'Pseudo Code')
-    plot_times(sizes, matmul_times, 'np.matmul')
 
 '''
 How does the computational performance vary with increasing the size of the matrices, and why so?
