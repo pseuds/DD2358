@@ -9,12 +9,7 @@ def matrix_numpyarray_init(size):
 def run_numpyarray(size):
     A = matrix_numpyarray_init(size)
     B = matrix_numpyarray_init(size)
-    C = np.zeros((size, size))
-    for i in range(size):
-        for j in range(size):
-            for k in range(size):
-                C[i, j] += A[i, k] * B[k, j]
-    return size, A, B, C
+    return size, A, B, np.dot(A, B)
 
 def matrix_pylist_init(size):
     matrix_pylist = [[np.random.rand() for j in range(size)] for i in range(size)]
@@ -23,12 +18,7 @@ def matrix_pylist_init(size):
 def run_pylist(size):
     A = matrix_pylist_init(size)
     B = matrix_pylist_init(size)
-    C = [[0 for i in range(size)] for j in range(size)]
-    for i in range(size):
-        for j in range(size):
-            for k in range(size):
-                C[i][j] += A[i][k] * B[k][j]
-    return size, A, B, C
+    return size, A, B, np.dot(A, B)
 
 def matrix_pyarray_init(size):
     matrix_pyarray = array('f', [np.random.rand() for i in range(size*size)])
@@ -37,12 +27,7 @@ def matrix_pyarray_init(size):
 def run_pyarray(size):
     A = matrix_pyarray_init(size)
     B = matrix_pyarray_init(size)
-    C = array('f', [0 for i in range(size*size)])
-    for i in range(size):
-        for j in range(size):
-            for k in range(size):
-                C[i*size+j] += A[i*size+k] * B[k*size+j]
-    return size, A, B, C
+    return size, A, B, np.dot(A, B)
 
 def matmul(size):
     A = matrix_numpyarray_init(size)
