@@ -1,6 +1,7 @@
 from timeit import default_timer as timer
 from array import array
 import matplotlib.pyplot as plt
+import math
 import sys
 
 def list_init(size):
@@ -59,40 +60,70 @@ def calculate_bandwidth(size, times):
 
     return copy_bandwidth, scale_bandwidth, sum_bandwidth, triad_bandwidth
 
-def plot_benchmark(array_time, lists_time, sizes, op_type):
+def plot_benchmark(array_time, lists_time, sizes, op_type, y_lim):
 
-    plt.plot(sizes, array_time, label='Array')
-    plt.plot(sizes, lists_time, label='List')
+    log_sizes = [math.log10(size) for size in sizes]
 
-    plt.xlabel('Array Size')
+    plt.plot(log_sizes, array_time, label='Array')
+    plt.plot(log_sizes, lists_time, label='List')
+
+    plt.xlabel('Log10(Array Size)')
     plt.ylabel('Bandwidth')
+    plt.ylim(0, y_lim)
     plt.title(f'STREAM Benchmark ({op_type})')
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.show()
     
 if __name__ == "__main__":
 
     array_total = []
     list_total = []
-    sizes = [100, 1000, 10000, 100000, 1000000]
+    sizes = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000]
 
-    for size in sizes:
-        array_a, array_b, array_c = array_init(size)
-        list_a, list_b, list_c = list_init(size)
+    runs = 20
 
-        array_times = run_benchmark(array_a, array_b, array_c, size)
-        list_times = run_benchmark(list_a, list_b, list_c, size)
+    for r in range(runs):
+        array_run = []
+        list_run = []
+        for size in sizes:
+            array_a, array_b, array_c = array_init(size)
+            list_a, list_b, list_c = list_init(size)
 
-        array_bandwidth = calculate_bandwidth(size, array_times)
-        list_bandwidth = calculate_bandwidth(size, list_times)
+            array_times = run_benchmark(array_a, array_b, array_c, size)
+            list_times = run_benchmark(list_a, list_b, list_c, size)
 
-        array_total.append(array_bandwidth)
-        list_total.append(list_bandwidth)
+            array_bandwidth = calculate_bandwidth(size, array_times)
+            list_bandwidth = calculate_bandwidth(size, list_times)
 
-    plot_benchmark([i[0] for i in array_total], [j[0] for j in list_total], sizes, 'Copy')
-    plot_benchmark([i[1] for i in array_total], [j[1] for j in list_total], sizes, 'Scale')
-    plot_benchmark([i[2] for i in array_total], [j[2] for j in list_total], sizes, 'Sum')
-    plot_benchmark([i[3] for i in array_total], [j[3] for j in list_total], sizes, 'Triad')
+            array_run.append(array_bandwidth)
+            list_run.append(list_bandwidth)
+        array_total.append(array_run)
+        list_total.append(list_run)
+
+    avg_array_0 = [sum([array_total[k][i][0] for k in range(len(array_total))])/runs for i in range(len(array_total[0]))]
+    avg_array_1 = [sum([array_total[k][i][1] for k in range(len(array_total))])/runs for i in range(len(array_total[0]))]
+    avg_array_2 = [sum([array_total[k][i][2] for k in range(len(array_total))])/runs for i in range(len(array_total[0]))]
+    avg_array_3 = [sum([array_total[k][i][3] for k in range(len(array_total))])/runs for i in range(len(array_total[0]))]
+    avg_list_0 = [sum([list_total[k][i][0] for k in range(len(list_total))])/runs for i in range(len(list_total[0]))]
+    avg_list_1 = [sum([list_total[k][i][1] for k in range(len(list_total))])/runs for i in range(len(list_total[0]))]
+    avg_list_2 = [sum([list_total[k][i][2] for k in range(len(list_total))])/runs for i in range(len(list_total[0]))]
+    avg_list_3 = [sum([list_total[k][i][3] for k in range(len(list_total))])/runs for i in range(len(list_total[0]))]
+
+    y_lim = max(avg_list_0+avg_list_1+avg_list_2+avg_list_3)*1.10
+
+    plot_benchmark([i for i in avg_array_0], [j for j in avg_list_0], sizes, 'Copy', y_lim=y_lim)
+    plot_benchmark([i for i in avg_array_1], [j for j in avg_list_1], sizes, 'Scale', y_lim=y_lim)
+    plot_benchmark([i for i in avg_array_2], [j for j in avg_list_2], sizes, 'Sum', y_lim=y_lim)
+    plot_benchmark([i for i in avg_array_3], [j for j in avg_list_3], sizes, 'Triad', y_lim=y_lim)
+
+    print(avg_array_0)
+    print(avg_list_0)
+    print(avg_array_1)
+    print(avg_list_1)
+    print(avg_array_2)
+    print(avg_list_2)
+    print(avg_array_3)
+    print(avg_list_3)
 
 '''
 How does the bandwidth vary when increasing the STREAM_ARRAY_SIZE, and why?
