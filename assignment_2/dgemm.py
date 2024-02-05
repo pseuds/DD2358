@@ -1,13 +1,14 @@
 import numpy as np
+from array import array
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
-def matrix_init(size):
+def matrix_numpyarray_init(size):
     return np.random.rand(size, size).astype(np.float64)
 
-def run(size):
-    A = matrix_init(size)
-    B = matrix_init(size)
+def run_numpyarray(size):
+    A = matrix_numpyarray_init(size)
+    B = matrix_numpyarray_init(size)
     C = np.zeros((size, size))
     for i in range(size):
         for j in range(size):
@@ -15,9 +16,37 @@ def run(size):
                 C[i, j] += A[i, k] * B[k, j]
     return size, A, B, C
 
+def matrix_pylist_init(size):
+    matrix_pylist = [[np.random.rand() for j in range(size)] for i in range(size)]
+    return matrix_pylist
+
+def run_pylist(size):
+    A = matrix_pylist_init(size)
+    B = matrix_pylist_init(size)
+    C = [[0 for i in range(size)] for j in range(size)]
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+                C[i][j] += A[i][k] * B[k][j]
+    return size, A, B, C
+
+def matrix_pyarray_init(size):
+    matrix_pyarray = array('f', [np.random.rand() for i in range(size*size)])
+    return matrix_pyarray
+
+def run_pyarray(size):
+    A = matrix_pyarray_init(size)
+    B = matrix_pyarray_init(size)
+    C = array('f', [0 for i in range(size*size)])
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+                C[i*size+j] += A[i*size+k] * B[k*size+j]
+    return size, A, B, C
+
 def matmul(size):
-    A = matrix_init(size)
-    B = matrix_init(size)
+    A = matrix_numpyarray_init(size)
+    B = matrix_numpyarray_init(size)
     return size, A, B, np.matmul(A, B)
 
 def plot_times(sizes, times, oper):
@@ -48,7 +77,7 @@ if __name__ == "__main__":
         matmul_time_count = 0
         for _ in range(num_runs):
             start_time = timer()
-            run(size)
+            run_numpyarray(size)
             end_time = timer()
             dot_std_measure.append(end_time - start_time)
             dot_time_count += end_time - start_time

@@ -1,4 +1,3 @@
-import pytest
 from scipy.linalg import blas
 from dgemm import run
 import numpy as np
