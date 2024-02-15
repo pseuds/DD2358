@@ -6,9 +6,9 @@ import sys
 
 def list_init(size):
 
-    a = [1.0] * size
-    b = [2.0] * size
-    c = [0.0] * size
+    a = [float(1.0)] * size
+    b = [float(2.0)] * size
+    c = [float(0.0)] * size
 
     return a, b, c
 
@@ -53,10 +53,12 @@ def run_benchmark(a, b, c, size):
 
 def calculate_bandwidth(size, times):
 
-    copy_bandwidth = (2 * size * sys.getsizeof(float)) / times[0]
-    scale_bandwidth = (3 * size * sys.getsizeof(float)) / times[1]
-    sum_bandwidth = (2 * size * sys.getsizeof(float)) / times[2]
-    triad_bandwidth = (3 * size * sys.getsizeof(float)) / times[3]
+    float_size = 4
+
+    copy_bandwidth = (2 * size * float_size) / times[0]
+    scale_bandwidth = (3 * size * float_size) / times[1]
+    sum_bandwidth = (2 * size * float_size) / times[2]
+    triad_bandwidth = (3 * size * float_size) / times[3]
 
     return copy_bandwidth, scale_bandwidth, sum_bandwidth, triad_bandwidth
 
