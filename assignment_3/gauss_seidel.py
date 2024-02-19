@@ -5,7 +5,7 @@ from timeit import default_timer as timer
 #import gauss_seidel_ctype
 import torch
 from torch import (roll, zeros)
-#import cupy as cp
+import cupy as cp
 import h5py
 
 #@profile
@@ -19,34 +19,36 @@ def gauss_seidel(f):
     return newf
 
 def gauss_seidel_torch(f):
-    newf = f.clone()
+  newf = f.clone()
+  newf[1:-1, 1:-1] = (0.25 * (roll(newf,1,0)[1:-1,1:-1]
+                              + roll(newf,-1,0)[1:-1,1:-1]
+                              + roll(newf,1,1)[1:-1,1:-1]
+                              + roll(newf,-1,1)[1:-1,1:-1]))
 
-    return ((roll(newf, 0, 1) + roll(newf, 0, 1) + roll(newf, 0, 0) + roll(newf, 0, 0)) * 0.25)
+  return newf
 
-#def gauss_seidel_cupy(f):
-#    newf = f.copy()
-#
-#   return ((cp.roll(newf, 0, 1) + cp.roll(newf, 0, 1) + cp.roll(newf, 0, 0) + cp.roll(newf, 0, 0)) * 0.25)
+def gauss_seidel_cupy(f):
+  newf = f.copy()
+  newf[1:-1, 1:-1] = (0.25 * (cp.roll(newf,1,0)[1:-1,1:-1]
+                              + cp.roll(newf,-1,0)[1:-1,1:-1]
+                              + cp.roll(newf,1,1)[1:-1,1:-1]
+                              + cp.roll(newf,-1,1)[1:-1,1:-1]))
 
-def gauss_seidel_torch(f):
-    newf = f.clone()
+  return newf
 
-    return ((roll(newf, 0, 1) + roll(newf, 0, 1) + roll(newf, 0, 0) + roll(newf, 0, 0)) * 0.25)
-
-def initialize_grid(size):
+def initialize_grid(size, random_state=1):
+    if random_state != None: np.random.seed(random_state)
     grid = np.zeros((size, size))
     grid[1: -1, 1: -1] = np.random.rand(size - 2, size - 2)
     return grid
 
 def initialize_grid_torch(size):
-    grid = zeros((size, size))
-    grid[1: -1, 1: -1] = torch.rand(size - 2, size - 2)
-    return grid
+    grid = initialize_grid(size, random_state=None)
+    return torch.from_numpy(grid)
 
-#def initialize_grid_cupy(size):
-#    grid = cp.zeros((size, size))
-#    grid[1: -1, 1: -1] = cp.random.rand(size - 2, size - 2)
-#    return grid
+def initialize_grid_cupy(size):
+    grid = initialize_grid(size, random_state=None)
+    return cp.asarray(grid)
 
 def plot_gauss(grid_size, times):
 
