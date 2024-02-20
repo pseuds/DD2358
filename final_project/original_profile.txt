@@ -1,0 +1,81 @@
+Timer unit: 1e-06 s
+
+Total time: 418.766 s
+File: .\artificialneuralnetwork.py
+Function: main at line 216
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   216                                           @profile
+   217                                           def main():
+   218                                           	""" Artificial Neural Network for classifying galaxies """
+   219                                           	
+   220                                           	# set the random number generator seed
+   221         1         22.1     22.1      0.0  	np.random.seed(917)
+   222                                           	
+   223                                           	# Load the training and test datasets
+   224         1    5033899.0    5e+06      1.2  	train = np.genfromtxt('train.csv', delimiter=',')
+   225         1    6292116.1    6e+06      1.5  	test = np.genfromtxt('test.csv', delimiter=',')
+   226                                           	
+   227                                           	# get labels (0=Elliptical, 1=Spiral, 2=Irregular)
+   228         1         18.5     18.5      0.0  	train_label = train[:,0].reshape(len(train),1)
+   229         1          2.2      2.2      0.0  	test_label = test[:,0].reshape(len(test),1)
+   230                                           	
+   231                                           	# normalize image data to [0,1]
+   232         1       7982.6   7982.6      0.0  	train = train[:,1:] / 255.
+   233         1       1890.8   1890.8      0.0  	test = test[:,1:] / 255.
+   234                                           	
+   235                                           	# Construct our data matrix X (2700 x 5000)
+   236         1          0.7      0.7      0.0  	X = train
+   237                                           
+   238                                               # Construct our label vector y (2700 x 1)
+   239         1          1.2      1.2      0.0  	y = train_label
+   240                                           	
+   241                                           	# Two layer Neural Network parameters:
+   242         1         27.4     27.4      0.0  	m = np.shape(X)[0]
+   243         1          4.5      4.5      0.0  	input_layer_size = np.shape(X)[1]
+   244         1          0.5      0.5      0.0  	hidden_layer_size = 8
+   245         1          0.3      0.3      0.0  	num_labels = 3
+   246         1          0.4      0.4      0.0  	lmbda = 1.0    # regularization parameter
+   247                                           	
+   248                                           	# Initialize random weights:
+   249         1         88.8     88.8      0.0  	Theta1 = np.random.rand(hidden_layer_size, input_layer_size+1) * 0.4 - 0.2
+   250         1          4.9      4.9      0.0  	Theta2 = np.random.rand(num_labels, hidden_layer_size+1) * 0.4 - 0.2
+   251                                           	
+   252                                           	# flattened initial guess
+   253         1         44.5     44.5      0.0  	theta0 = np.concatenate((Theta1.flatten(), Theta2.flatten()))
+   254         1      10909.1  10909.1      0.0  	J = cost_function(theta0, input_layer_size, hidden_layer_size, num_labels, X, y, lmbda)
+   255         1         37.3     37.3      0.0  	print('initial cost function J =', J)
+   256         1      11542.1  11542.1      0.0  	train_pred = predict(Theta1, Theta2, train)
+   257         1        180.2    180.2      0.0  	print('initial accuracy on training set =', np.sum(1.*(train_pred==train_label))/len(train_label))
+   258                                           	global Js_train
+   259                                           	global Js_test
+   260         1          4.7      4.7      0.0  	Js_train = np.array([J])
+   261         1       3010.9   3010.9      0.0  	J_test = cost_function(theta0, input_layer_size, hidden_layer_size, num_labels, test, test_label, lmbda)
+   262         1          4.6      4.6      0.0  	Js_test = np.array([J_test])
+   263                                           
+   264                                           	# prep figure
+   265         1     684025.7 684025.7      0.2  	fig = plt.figure(figsize=(6,6), dpi=80)
+   266                                           
+   267                                           	# Minimize the cost function using a nonlinear conjugate gradient algorithm
+   268         1          1.5      1.5      0.0  	args = (input_layer_size, hidden_layer_size, num_labels, X, y, lmbda)  # parameter values
+   269         1          4.3      4.3      0.0  	cbf = partial(callbackF, input_layer_size, hidden_layer_size, num_labels, X, y, lmbda, test, test_label)
+   270         1  406641867.8    4e+08     97.1  	theta = optimize.fmin_cg(cost_function, theta0, fprime=gradient, args=args, callback=cbf, maxiter=600)
+   271                                           
+   272                                           	# unflatten theta
+   273         1         15.7     15.7      0.0  	Theta1, Theta2 = reshape(theta_best, input_layer_size, hidden_layer_size, num_labels)
+   274                                           	
+   275                                           	# Make predictions for the training and test sets
+   276         1      14312.0  14312.0      0.0  	train_pred = predict(Theta1, Theta2, train)
+   277         1       2987.3   2987.3      0.0  	test_pred = predict(Theta1, Theta2, test)
+   278                                           	
+   279                                           	# Print accuracy of predictions
+   280         1        117.2    117.2      0.0  	print('accuracy on training set =', np.sum(1.*(train_pred==train_label))/len(train_label))
+   281         1         38.8     38.8      0.0  	print('accuracy on test set =', np.sum(1.*(test_pred==test_label))/len(test_label))	
+   282                                           			
+   283                                           	# Save figure
+   284         1      60631.5  60631.5      0.0  	plt.savefig('artificialneuralnetwork.png',dpi=240)
+   285         1        127.0    127.0      0.0  	plt.show()
+   286                                           	    
+   287         1          0.7      0.7      0.0  	return 0
+
